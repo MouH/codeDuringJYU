@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0069)http://users.jyu.fi/~miselico/teaching/TIES456/2013/exercises/week40/ -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  <title></title>
+  <link rel="stylesheet" href="./week40_files/kalvot.css" type="text/css">
+</head>
+<body>
+<h1 id="cloud-computing-basics-exercise">Cloud computing basics exercise</h1>
+<h2 id="goal">Goal</h2>
+<p>The goal of this exercise is to get acquainted with how application deployment can be done on cloud infrastructure. In this exercise we will use tools provided by the platform providers. Most providers create tools for deployment to their systems. Further we will try to measure the performance of the deployed application.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>The first thing you need in order to complete this exercise is good nerves and the will to try out things (This is the real world). Further, you will need some knowledge about <a href="http://git-scm.com/book">git</a> for moving code to the server (what you used for previous exercises should be sufficient, you might need to look into <a href="http://git-scm.com/book/ch2-5.html">adding remotes</a>, though). Then, because of the platforms which will be used, you need to understand what Java <a href="http://en.wikipedia.org/wiki/Java_Servlet">Servlets</a> are and what a <a href="http://en.wikipedia.org/wiki/WAR_file_format_(Sun)">WAR</a> package is and looks like. For measuring performance we will be using <a href="http://jmeter.apache.org/">JMeter</a>. <!--
+https://developers.google.com/appengine/docs/java/overview
+https://developers.google.com/appengine/docs/java/runtime
+--></p>
+<h2 id="task">Task</h2>
+<p>The goal is to deploy the localGDP server which was created in <a href="http://users.jyu.fi/~miselico/teaching/TIES456/2013/exercises/week39">last week's exercise</a> to cloud service providers. The first one is Google which provides the <a href="https://appengine.google.com/">Google App Engine (GAE)</a> and secondly we will deploy to <a href="http://www.heroku.com/">Heroku</a>. You only need to get the RESTfull interface working. Getting the SOAP interface working is possible, but is <a href="https://developers.google.com/appengine/articles/soap">quite complicated</a> on GAE. We will be using the Eclipse programming environment because both providers have a plug-in which simplifies the task.</p>
+<h3 id="cleaning-up-last-weeks-code-by-friday">Cleaning up last weeks code (by Friday)</h3>
+<p>Refactor the code you created last week so that methods ans packages have a normal name. Commit the refactored code to last weeks repo. Now remove the parts related to the SOAP localGDP server for this weeks exercise. Change to the new repo by</p>
+<ol start="0" style="list-style-type: decimal">
+<li>cloning the repository</li>
+<li>adding a new remote</li>
+<li>pushing the branch to the new remote</li>
+<li>removing the old remote</li>
+</ol>
+<h3 id="google-app-engine">Google App Engine</h3>
+<p>Start by installing the <a href="https://developers.google.com/appengine/docs/java/tools/eclipse">Google App engine plug-in</a> into Eclipse. You will also need a Google account to create applications. Go to <a href="https://appengine.google.com/">https://appengine.google.com/</a> to create a new application. Use as an application name (replace X with your group number) <code>ties456-2013-groupX</code> Keep the access public for your application.</p>
+<p>Now, you will notice that GAE require the entry point of you application to be a servlet! Most groups did however use Jersey annotation to transform a normal class into a RESTful service. Therefore, you will need to do something very similar as described in <a href="http://blog.iparissa.com/googles-app-engine-java/google-app-engine-jax-rs-jersey/">this blog post</a>. You should use a newer version of Jersey <!-- http://download.java.net/maven/2/com/sun/jersey/jersey-archive/1.9-ea04/ -->and your own annotated class instead of the HelloWorldResource and change the package declarations in web.xml accordingly. Place all used libraries in <code>/war/WEB-INF/lib/</code>. After deploying, you will be able to access your application from (replace X by your group number.) <code>http://ties456-2013-groupX.appspot.com/your/path/as/you/set/it/up/lng/lat</code> or something.</p>
+<h3 id="heroku">Heroku</h3>
+<p>Heroku is much more flexible about the types of applications you can run in the Java environment. It is thus also possible to deploy an application which is quite similar to the one we deployed in the first part of the exercise to Heroku. Heroku provides a plugin for eclipse which has a tutorial on the <a href="https://devcenter.heroku.com/articles/getting-started-with-heroku-eclipse">Getting Started with Heroku &amp; Eclipse</a> page.</p>
+<p>While following that tutorial, make sure to choose the RESTful JAX-RS application type. This way all dependencies will be automatically arranged. You can then add the GDPService class to the right folder to make it available. Note that the Heroku plug-in depends strongly on Maven to achieve this ease of use.</p>
+<h3 id="jmeter">JMeter</h3>
+<p>With JMeter you can emulate many requests to your service and hence create a high load on your server. Try to come up with a reasonable way to measure the performance. Use this technique to measure the performance of your server running locally vs. on one GAE. Also look at how the number of instances running in GAE reacts. Document how you measured the performance, add the measurements and describe how the results compare.</p>
+<h3 id="optional-proguard-class-shrinking">Optional : Proguard class shrinking</h3>
+<p>When using Java, there is often a lot of unnecessary code loaded. <a href="http://proguard.sourceforge.net/#">Proguard</a> is a tool to shrink classes to only the used methods and remove unused classes from libraries. You can try to use this tool and check whether this has any effect on the performance. Differences could be expected in the speed to react to the first request (faster ramp-up) and perhaps a slightly lower memory consumption. The faster ramp-up is important in cloud computing since spiky load is a typical use case for cloud computing infrastructure.</p>
+<h3 id="submission">Submission</h3>
+<p>Put all code you created on Git in the repo for this week. For this task you have to put in the README.txt file what the addresses are to get communicate with your server in particular for both GAE and Heroku with latitude 62.2320 and longitude 25.7367. Also put the results of the measurement</p>
+<p>Ask your own questions and answer the reflective questions on <a href="http://ties456.it.jyu.fi/q2a/index.php?qa=week40">http://ties456.it.jyu.fi/q2a/index.php?qa=week40</a>.</p>
+<h2 id="hints">Hints</h2>
+<ol style="list-style-type: decimal">
+<li>When deploying on GAE, you can see the log by going to your applications dashboard (click on your application name from <a href="https://appengine.google.com/">https://appengine.google.com/</a>) and then go to Logs using the link on the left hand side of the page.</li>
+<li>If you notice an error in your log with type <code>java.lang.IncompatibleClassChangeError</code>, you will need to disable <code>Use Datanucleus JDO/JPA to access the datastore</code> from Project-&gt;Properties-&gt;Google-&gt;App Engine / Datastore . The reason for this error is that the data store code is using classes which are the same as some of the classes in the Jersey libraries except that the versions are different.</li>
+</ol>
+
+
+<script type="text/javascript">var vglnk = {api_url: '//api.viglink.com/api', key: '0dff9ade2d1125af6c910069b6d6e155'};</script><script type="text/javascript" async="" src="./week40_files/vglnk.js"></script></body></html>

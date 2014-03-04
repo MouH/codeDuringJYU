@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0069)http://users.jyu.fi/~miselico/teaching/TIES456/2013/exercises/week41/ -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  <title></title>
+  <link rel="stylesheet" href="./week41_files/kalvot.css" type="text/css">
+</head>
+<body>
+<h1 id="cloud-computing---system-administration---nosql-servers">Cloud computing - System administration - NoSQL servers</h1>
+<!-- Next time : use  http://www.linuxfoundation.org/collaborate/workgroups/networking/netem -->
+
+<h2 id="goal">Goal</h2>
+<p>The goal of this exercise is getting acquainted with NoSQL databases. A side-goal is training some basic system administrator skills which you will likely need when developing this type of systems yourself. You will also be using virtual machines in this exercise.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>Learn how to create a simple HTTP server using python. First check the <a href="http://docs.python.org/2/library/basehttpserver.html">Python documentation</a>. This documentation is intentionally from the 2.x branch of python since that is what is supported by Riak (see below). You can also look at the example from <a href="http://fragments.turtlemeat.com/pythonwebserver.php">here</a> and try to understand what the code does. Be aware that the coding style in this example is quite bad.</p>
+<p>Learn what a NoSQL database is. A general description can be found from <a href="http://en.wikipedia.org/wiki/NoSQL">Wikipedia</a>. In this exercise we will be using the Riak NoSQL database. Read the basic information from <a href="http://docs.basho.com/riak/latest/theory/concepts/">Riakdoc - concepts</a>. If you have not been using the Linux lately, you can have a look at the <a href="http://files.fosswire.com/2007/08/fwunixref.pdf">cheat sheet</a>. Read trough the first five section of the <a href="http://docs.basho.com/riak/latest/dev/taste-of-riak/python/">Taste of Riak: Python</a> documentation. You will need this later when accessing Riak from your web server.</p>
+<h2 id="task">Task</h2>
+<p>This assignment contains a technical part and several reflective questions (see below).</p>
+<p><em>Do</em> <strong>NOT</strong> <em>copy paste commands without having a clue what they are doing.</em> Some commands need to be adapted before use.</p>
+<p>In this exercise you will set-up a NoSQL database and then write a small server which uses the database as a back-end. As an example of a NoSQL database we will use the <a href="http://basho.com/riak/">Riak</a> database. For the server we will use a simple HTTP server implemented using the python programming language. The database and the server run on separate virtual machines.</p>
+<p>All work in this task needs to be done on <code>lohkare2.it.jyu.fi</code>. This machine is reachable over ssh from inside the university network (including KOAS and Kortepohja student village). Students outside the network can reach the machine using VPN or by first connecting to <code>charra.it.jyu.fi</code> using ssh and then connect to lohkare2. In the Linux terminal a typical ssh command would look like: <code>ssh username@host</code>. On lohkare2, all student in this course have an account and X-forwarding is possible. Windows users can use <a href="http://www.putty.org/">putty</a> to connect to the server.</p>
+<p>Note that the home directory on lohkare2 is not related to your normal university home directory. All files are local to lohkare2.</p>
+<p>From now on it is assumed that you are logged in to the server.</p>
+<h3 id="setting-up-the-virtual-machines">Setting up the virtual machines</h3>
+<p>First you need to generate a public and private key pair on the server. Create this as follows:</p>
+<pre><code>ssh-keygen -t rsa</code></pre>
+<p>This creates a private and a public key in the <code>~/.ssh/</code> directory.</p>
+<p>A script has been prepared to create the machines. This script is put in everyones home directory and you should read it to see what it does. Read the script using:</p>
+<pre><code>nano createVMs</code></pre>
+<p>Execute the script using :</p>
+<pre><code>./createVMs</code></pre>
+<p>The script takes your group number as a parameter. Please double check before providing it. You might need to enter your password while this script is running since creating VMs requires sudo access. Take note of the information which the script prints, some of it you will need later. This script can only be run once per group!!</p>
+<p>Note that only the student who creates the VMs can access them. This is because of the fact that only that user has the right key to log into the virtual machines. (You can add additional public keys to the VMs or share the key if you know how to do it.)</p>
+<p>Another thing you should realize is that the virtual machines can communicate with each other and you can connect to the virtual machines from the host machine, i.e. lohkare. It is however not possible (except for people familiar with tunneling) to connect to the created virtual machines from your own work station. Instead of using your browser or testing something you can use either <code>wget</code> or <code>curl</code> for fetching content. Interactive browsing is possible with <code>links</code> or <code>lynx</code>. In order to us these tools on the VMs, you will need to install them yourself. See also the tip section below.</p>
+<h3 id="setting-up-the-database">Setting up the database</h3>
+<p><em>Remark</em> : if you want to start working on the HTTP server before you finish the creation of the database, you can use the database server running at <code>http://192.168.122.148:8098</code>. Keep in mind that also others might be using the server. Use keys which contain some identifier related to your group.</p>
+<p>A virtual machine was created which will be used as the database machine. Use ssh to connect to that machine. The command will look something like <code>ssh root@192.168.122.1xx</code>. The correct address was shown when you created the machines. Now follow the following steps:</p>
+<ol style="list-style-type: decimal">
+<li>Install Erlang from source <a href="http://docs.basho.com/riak/latest/ops/building/installing/erlang/#Installing-on-GNU-Linux">use Installing on GNU/Linux</a></li>
+<li>Try whether erlang is correctly installed by firing up the erlang emulator with the command <code>erl</code></li>
+<li>Install Riak from source <a href="http://docs.basho.com/riak/latest/ops/building/installing/debian-ubuntu/#Installing-Riak-From-Source">See installing on Debian and Ubuntu from source</a> <!--
+     * The link for downloading the source is *outdated*! The version in the link should be changed from 1.2.0 to 1.2.1
+     * You can use the version from [http://users.jyu.fi/\~miselico/teaching/TIES532/2012/riak-1.2.1.tar.gz](http://users.jyu.fi/~miselico/teaching/TIES532/2012/riak-1.2.1.tar.gz) if the download is too slow!
+     * Also the version names in commands should be changed! --></li>
+<li>Now, you should run the database server. See <a href="http://docs.basho.com/riak/latest/ops/building/basic-cluster-setup/#Running-Multiple-Nodes-on-One-Host">Running multiple Nodes on one host</a>. Create three nodes for the server machine on the same host. In a real environment the nodes would be on separate machines, but to reduce repetition of the steps for the exercise they are created in one machine. <!--    The http ports used should be  8098, 8099, 8100. `handoff_port` and `pb_port` can be chosen freely, but need to be unique. 
+    Reasonable values could be 8101, 8102 and 8103 for the `hand off port`, and 8087, 8088 and 8089 for the `pb_port`. --> You must configure the ports as follows (<code>http</code> ip and <code>pb_ip</code> are initially set to <code>127.0.0.1</code> and should be the same for the three nodes and is the IP of the database VM.):
+<table>
+    <tbody><tr><th>
+Node
+</th><th>
+<code>pb_ip</code>
+</th><th>
+<code>pb_port</code>
+</th><th>
+<code>http</code> ip
+</th><th>
+<code>http</code> port
+</th><th>
+<code>handoff_prt</code>
+</th></tr>
+    <tr><td>
+Node 1
+</td><td>
+192.168.122.1XX
+</td><td>
+8087
+</td><td>
+192.168.122.1XX
+</td><td>
+8098
+</td><td>
+8101
+</td></tr>
+    <tr><td>
+Node 2
+</td><td>
+192.168.122.1XX
+</td><td>
+8088
+</td><td>
+192.168.122.1XX
+</td><td>
+8099
+</td><td>
+8102
+</td></tr>
+    <tr><td>
+Node 3
+</td><td>
+192.168.122.1XX
+</td><td>
+8089
+</td><td>
+192.168.122.1XX
+</td><td>
+8100
+</td><td>
+8103
+</td></tr>
+    </tbody></table>
+<!--Now we will create a 4 node development environment [follow instructions here](http://docs.basho.com/riak/latest/tutorials/fast-track/Building-a-Development-Environment/)
+   Note the comment on the bottom of the page!
+
+   HTTP interface ports
+        The above configuration sets up nodes with HTTP interfaces listening on ports 8091-8093. The default port for nodes to listen on is 8098 and users will need to take note of this when trying to use any of the default other-language client settings.
+  -->    </li>
+<li>Make sure you test the database by putting an image into it and fetching it back. In the terminal you don't have a browser! To do this you will need to install the curl tool. You can install curl by executing <code>apt-get install curl</code>. Look at the bottom of <a href="http://docs.basho.com/riak/latest/quickstart/#Test-the-Cluster">Five Minute Install</a> on how you can do a quick test to see whether it works. You can use wget instead of curl to just fetch (GET) the file. Change the IP address and port numbers as needed.</li>
+</ol>
+<p>Now, you have a NoSQL database set-up and you are ready to continue making the server.</p>
+<h3 id="making-the-http-server">Making the HTTP server</h3>
+<p>Now, we will make an HTTP server which is providing a minimal phone book service. The HTTP server must be running on the second VM which was created. To login to the machine, you can use the following ssh command: <code>ssh root@192.168.122.2XX</code>.</p>
+<p>First, you should try whether you can connect from the web server machine to the database machine by executing similar commands as the ones from step 5 in the previous section.</p>
+<p><!--
+(The image service task has been changed to the following tasks due to limitations in the Riak Python Client)
+
+You can start from the server code which can be found by following the link in the prerequisites. The server must be written in Python.
+Your server must have a page for uploading a picture, i.e. a simple upload form.
+The form contains a text element to put the name for the file and a file element for the file.
+The form should be accessible from `http://192.168.122.xxx/uploadPicture/`.
+The server must also handle requests for getting the picture by URL.
+A previously uploaded picture with name `myFancyPicture.jpg` must be retrievable from `http://192.168.122.xxx/getPicture/?name=myFancyPicture.jpg`.
+PROBLEM: streams are not supported. The HTTP framework supports them http://www.doughellmann.com/PyMOTW/BaseHTTPServer/ , but Raik Python client does not.
+--> You can start from the server code which can be found by following the link in the prerequisites (rememebr that the code style is quite bad). The only requirement is that the server must be written in Python, you are advised to use frameworks like for instance <a href="http://flask.pocoo.org/">flask</a> or <a href="http://bottlepy.org/">bottle</a>.</p>
+<p>At <code>http://192.168.122.2XX/add/</code> you must serve a form in which the user can enter its name and phone number. Sending a form back to the server is a POST action. The data entered in the form must be stored in the Riak database cluster, old values should be overwritten. A previously entered phone number can be retrieved by visiting <code>http://192.168.122.2XX/search/name</code>. The database must be queried for retrieval of the phone number.</p>
+<p>You will need to install a few dependencies before installing the Riak Python libraries. All of then can be installed with apt-get (See Tips section).</p>
+<ul>
+<li><code>python-pip</code></li>
+<li><code>protobuf-compiler</code></li>
+<li><code>python-protobuf</code></li>
+</ul>
+<p>Check from <a href="http://docs.basho.com/riak/latest/dev/taste-of-riak/python/">this page</a> how to install the Riak libraries and connect to your Riak server from Python code. You just installed <code>pip</code>, you can now use it for installation of the Python packages. While reading the tutorial, keep in mind that your database is not on localhost and does not use default ports.</p>
+<pre><code>    RiakClient(protocol='http', host='192.168.122.1xx', http_port=8098) &lt;!-- bla_ --&gt;</code></pre>
+<p>Now, as you might have read, using HTTP for the client is 2-3 times slower as the protocol buffer API. Currently, your client most likely uses HTTP. Changing it to use protocol buffers is straightforward (because we pre-installed the needed dependencies) and only requires you to change the code for creating the client from <code>riak.RiakClient(host="192.168.122.1XX", port=8098)</code>to something like <code>riak.RiakClient(host="192.168.122.1XX", port=8087, protocol='pcb')</code></p>
+<p>You have set up three nodes in the database. Your current solution is however only querying one of the nodes all the time. Try to come up with and implement a <em>simple</em> mechanism which makes your HTTP server implementation alternate between the nodes.</p>
+<p>Some contacts will be more popular as others. Imagine that in the scope of this exercise, it makes sense to cache frequently used ones for later use. <a href="http://code.google.com/p/memcached/">memcached</a> is one caching solution which is also used in production environments. Install memcached and make use of the caching facilities from your Python web application. (You can install and use the packaged memcached version by running <code>sudo apt-get install memcached</code>). The memcache deamon runs as a separate process from your python server. Then you use a <a href="http://code.google.com/p/memcached/wiki/Clients#Python">client library</a> to connect to is.</p>
+<h3 id="returning-the-task">Returning the task</h3>
+<p>You <em>return</em> the task by appending the text from <a href="http://users.jyu.fi/~miselico/teaching/TIES456/2013/exercises/week41/toBeAppendedTo_authorized_keys">toBeAppendedTo_authorized_keys</a> to the <code>~/.ssh/authorized_keys</code> file on both virtual machines. This way the teacher is able to log into the machines. There should be 1 line for your key already. Put my whole key on the second line. Thus one line per key. Do not remove your own key.</p>
+<p>Also place all you self written files (web server) to this weeks repository.</p>
+<p>Provide an answer to the following questions in a readme file in your repo</p>
+<ol style="list-style-type: decimal">
+<li>How would you implement a page which shows a list of files. See also [http://docs.basho.com/riak/latest/dev/references/http/list-keys/]</li>
+<li>Why would you ever use a set-up with virtual machines in a real (production) environment? Or would you not?</li>
+<li>What should be improved in this exercise if it is given to students in the future?</li>
+</ol>
+<!--2) You used local keys without encrypting them or you don't know what this means: put the username of the student who made the WMs into the README file. I will 'steal' the key from your home directory and use it log in to the machine.
+
+The first way is the most correct way to do this since you only give me access to two specific machines. The second way is bad practice since you give me access to all machines you used this key for. (Which should be only these two VMs which you created)
+-->
+
+
+
+
+<h3 id="questions">Questions</h3>
+<p>Ask your own questions and answer the reflective questions on <a href="http://ties456.it.jyu.fi/q2a/index.php?qa=week41">http://ties456.it.jyu.fi/q2a/index.php?qa=week41</a>.</p>
+<h2 id="hints">Hints</h2>
+<ol style="list-style-type: decimal">
+<li><p><code>app.config</code> can be found in <code>riakX/etc/app.config</code></p></li>
+<li><p>You can install needed tools on the VMs as you see fit using <code>apt-get install package_name</code>. Where <code>package_name</code> is the name of the package to be installed. Keep in mind that the disk space for the virtual machines is fairly limited (free space can be checked with <code>df -h</code>).</p></li>
+<li><p>You can install the nano text editor to edit files in the terminal. Execute <code>apt-get install nano</code>.</p></li>
+</ol>
+
+
+<script type="text/javascript">var vglnk = {api_url: '//api.viglink.com/api', key: '0dff9ade2d1125af6c910069b6d6e155'};</script><script type="text/javascript" async="" src="./week41_files/vglnk.js"></script></body></html>

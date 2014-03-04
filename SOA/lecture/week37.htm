@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0069)http://users.jyu.fi/~miselico/teaching/TIES456/2013/exercises/week37/ -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  <title></title>
+  <link rel="stylesheet" href="./week37_files/kalvot.css" type="text/css">
+</head>
+<body>
+<h1 id="restful-web-services-exercise">RESTful web services exercise</h1>
+<h2 id="goal">Goal</h2>
+<p>Learn to use a RESTful API. The API used here is an example, the goal is that the student can use the experience from implementing against this RESTful API in another context as well.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>Learn what a RESTful webservice is. A first source could be the following IBM article <a href="https://www.ibm.com/developerworks/webservices/library/ws-restful/">https://www.ibm.com/developerworks/webservices/library/ws-restful/</a> also interesting is the wikipedia article <a href="http://en.wikipedia.org/wiki/Representational_state_transfer">http://en.wikipedia.org/wiki/Representational_state_transfer</a>. Interested readers can also read the original doctoral dissertation in which Roy Fielding introduced representational state transfer (REST) <a href="http://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm">http://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm</a> mainly chapter 5 is of interest. It is however not required to read it. The student is supposed to have basic knowledge about xml. Also basic knowledge of the HTTP protocol is useful (see also the wikipedia article about it at <a href="http://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol">http://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol</a>).</p>
+<h2 id="task">Task</h2>
+<p>This assignment contains a programming part and several reflective questions online. The service used is <a href="http://www.mediafire.com/">http://www.mediafire.com/</a>. Before starting, the student has to create an account at the service. Once logged in, go to &gt;my account&gt;developers and create a new application. You will need the App ID and API Key for testing the code which you will write for this exercise. The RESTful API of mediafire is described on this webpage <a href="http://developers.mediafire.com/index.php/REST_API">http://developers.mediafire.com/index.php/REST_API</a> , read trough the description of the interface. The group is expected to create a class with is according to the API specified in <a href="http://users.jyu.fi/~miselico/teaching/TIES532/2012/mediafire/doc/fi/jyu/it/TIEJ650/mediafire/MediaFire.html">http://users.jyu.fi/~miselico/teaching/TIES532/2012/mediafire/doc/fi/jyu/it/TIEJ650/mediafire/MediaFire.html</a> using the JAVA programming language.</p>
+<ul>
+<li><p>Even groups use XML to communicate with the service, odd groups use JSON.</p></li>
+<li><p>Use for instance org.apache.http.client.utils.URIBuilder, for building URIs in a safe manner. <em>Do not use string concatenation</em> (Percent encoding of parameters is handled automatically http://en.wikipedia.org/wiki/Percent-encoding )</p></li>
+<li><p>Use password authentication for the service</p></li>
+<li><p>You are encouraged to use Maven to manage all your dependencies</p></li>
+<li><p>Ask your own questions and answer the reflective questions on http://desmaani.it.jyu.fi:8254/ties532/index.php?qa=week37</p></li>
+</ul>
+<h3 id="returning-the-task">Returning the task</h3>
+<p>Put the parts you created yourself to your git repository. Include a class with a main method to test your class.</p>
+<h3 id="questions">Questions</h3>
+<p>Ask your own questions <a href="http://desmaani.it.jyu.fi:8254/ties532/index.php?qa=week37">http://desmaani.it.jyu.fi:8254/ties532/index.php?qa=week37</a>.</p>
+<h2 id="hints">Hints</h2>
+<ol style="list-style-type: decimal">
+<li>It is advised to use the HttpClient from the apache software foundation which is documented on <a href="http://hc.apache.org/httpcomponents-client-ga/">http://hc.apache.org/httpcomponents-client-ga/</a> and can be downloaded from <a href="http://hc.apache.org/downloads.cgi">http://hc.apache.org/downloads.cgi</a> (Only the binary versions of HttpClient and HttpCore are needed - do not use the OSGI bundles.) Look trough the quickstart guide at <a href="http://hc.apache.org/httpcomponents-client-ga/quickstart.html">http://hc.apache.org/httpcomponents-client-ga/quickstart.html</a> to get started.</li>
+<li><p>For the sha-1 algorithm, you can use the org.apache.commons.codec.digest.DigestUtils class (which is included in the above mentioned libraries) and do</p>
+<pre><code>digest = DigestUtils.shaHex(original);</code></pre></li>
+<li><p>Typically you will get a stacktrace which starts as follows :</p>
+<pre><code>Exception in thread "main" javax.net.ssl.SSLPeerUnverifiedException: peer not authenticated
+at sun.security.ssl.SSLSessionImpl.getPeerCertificates(SSLSessionImpl.java:371)
+at org.apache.http.conn.ssl.AbstractVerifier.verify(AbstractVerifier.java:128)
+...</code></pre>
+<p>This means that you have problems with certificates when calling the server. Make sure you have java jdk installed and then follow the steps as per <a href="http://my.opera.com/karmazilla/blog/how-to-grab-the-certificate-from-a-website-and-import-it-with-java-keytool.">this website</a> (The website assumes you are using linux. For windows see <a href="https://forum.startcom.org/viewtopic.php?f=15&t=1678">https://forum.startcom.org/viewtopic.php?f=15&amp;t=1678</a>.) You can download the certificate from the course website at http://users.jyu.fi/~miselico/teaching/TIES532/2012/mediafire/mediafire.crt ).</p></li>
+<li><p>To extract, for instance, the token from the received XML, one can use code similar to the following:</p>
+<pre><code>XPathFactory factory = XPathFactory.newInstance();
+XPath path = factory.newXPath();
+String token = path.evaluate("/response/session_token", new InputSource(xmlstream));</code></pre></li>
+</ol>
+<p>This snippet uses XPath to extract the token from the XML document. For the interested student familiar with XML, there is an article on XPath to be found at <a href="http://www.ibm.com/developerworks/library/x-javaxpathapi/index.html">http://www.ibm.com/developerworks/library/x-javaxpathapi/index.html</a>.</p>
+<ol start="5" style="list-style-type: decimal">
+<li>It is not obligated to use the XML representation. Also JSON is possible, remember to put the response_format to json. It is recommended to use <a href="http://json-lib.sourceforge.net/">http://json-lib.sourceforge.net/</a> as a JSON library in this exercise. This library simplifies the use of Java bean classes like the provided UserInfo class. For more information see <a href="http://json-lib.sourceforge.net/usage.html#objects">http://json-lib.sourceforge.net/usage.html#objects</a>. Remember to also put the dependencies of the JSON library on the build path! This library requires (search google for download. Mind the version numbers):</li>
+</ol>
+<ul>
+<li>jakarta commons-lang 2.5</li>
+<li>jakarta commons-beanutils 1.8.0</li>
+<li>jakarta commons-collections 3.2.1</li>
+<li>jakarta commons-logging 1.1.1</li>
+<li>ezmorph 1.0.6 Alternatively, one can use the reference implementation from <a href="https://github.com/douglascrockford/JSON-java">https://github.com/douglascrockford/JSON-java</a> which does not depend on external libraries, but does not provide automatical tools for interaction with java bean classes.</li>
+</ul>
+<ol start="6" style="list-style-type: decimal">
+<li><p>It is not necessary to check the e-mail address for validity.</p></li>
+<li><p>The class does not need to be thread-safe.</p></li>
+</ol>
+
+
+<script type="text/javascript">var vglnk = {api_url: '//api.viglink.com/api', key: '0dff9ade2d1125af6c910069b6d6e155'};</script><script type="text/javascript" async="" src="./week37_files/vglnk.js"></script></body></html>

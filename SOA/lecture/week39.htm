@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0069)http://users.jyu.fi/~miselico/teaching/TIES456/2013/exercises/week39/ -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  <title></title>
+  <link rel="stylesheet" href="./week39_files/kalvot.css" type="text/css">
+</head>
+<body>
+<h1 id="web-service-servers">Web service servers</h1>
+<h2 id="goal">Goal</h2>
+<p>Learn to create SOAP and RESTful web services. In this exercise we will be using libraries available for creation of this type of services. The goal is however that the student also understands what happens behind the scenes. Further, this task includes service composition, where two services are combined into one - transparently for the user of the service. Finally, you need to implement caching and optionally take measures which prevent rate limiting.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>The group should have made the assignment “Web service clients” and “RESTful web services exercise”. All prerequisite material for these exercises is prerequisite for this one as well. Further, the student should get acquainted with the Jersey libraries. You can read some practical info about RESTful servers from <a href="http://jersey.java.net/nonav/documentation/latest/getting-started.html">http://jersey.java.net/nonav/documentation/latest/getting-started.html</a>. Please try out the examples from that webpage. Information on how to use the Jersey REST client libraries can be found from <a href="https://jersey.java.net/documentation/latest/user-guide.html#client">https://jersey.java.net/documentation/latest/user-guide.html#client</a>.</p>
+<p>Basic information about implementing SOAP services in Java using JAX-WS can be found from <a href="http://www.mkyong.com/webservices/jax-ws/jax-ws-hello-world-example/">http://www.mkyong.com/webservices/jax-ws/jax-ws-hello-world-example/</a>. (the parts about ruby web services are not relevant for this exercise.)</p>
+<p>For the caching part of the exercise, read about google Guava’s CacheBuilder which provides basic in memory (and in process) caching. More information can be found from <a href="http://code.google.com/p/guava-libraries/wiki/CachesExplained">http://code.google.com/p/guava-libraries/wiki/CachesExplained</a>.</p>
+<p>For the optional part of this task, if you have no experience with Java thread pools, read <a href="http://docs.oracle.com/javase/tutorial/essential/concurrency/pools.html">http://docs.oracle.com/javase/tutorial/essential/concurrency/pools.html</a> for more information.</p>
+<h2 id="task">Task</h2>
+<p>Two services need to be consumed and combined transparently for the user of the newly created service. The final set-up looks like this:</p>
+<img src="./week39_files/overview.png" alt="an overview of the final set-up">
+<p>The first service to be used is the google geocoding API (more info from <a href="http://code.google.com/apis/maps/documentation/geocoding/">http://code.google.com/apis/maps/documentation/geocoding/</a> ). The second service is a service which converts a country code to a Gross Domestic Product. the WSDL file for that service can be found at <a href="http://ub1.ad.jyu.fi/GDP?wsdl">http://ub1.ad.jyu.fi/GDP?wsdl</a>. The self-created service, which will be called localGDP service will receive as a parameter a longitude and latitude. As a result, the service returns a GDP for the country at that location. Calling these web services can be done in a similar fashion as in previous exercises.</p>
+<p>Caching is essential in many applications. In this case we could cache the GDP of countries. The GDP service updates the values of the GDP for countries every 5 minutes. An easy way to implement caching in this situation would be to query the service every five minutes for all known countries (or all countries ever asked for) and then cache these values. To keep the exercise interesting, you should imagine that there would be too many countries to keep all this data stored in memory. To implement the caching, you could use a Cache created by com.google.common.cache.CacheBuilder from the Google guava library. For the sake of this exercise, you should limit your cache size to 10 and expire entries in the cache after 2.5 minutes. When creating an actual application, its performance is affected greatly by a good choice of cache parameters.</p>
+<p>Your localGDP service needs to have both a REST and a SOAP interface, which can be at different tcp ports (this is easier). For the REST service implementation, you should use the Jersey libraries and even groups use JSON to communicate and odd groups use XML. The SOAP interface should be created using JAX-WS. You should implement these services internally using streams (it is certainly disputable that this is the best solution - point is to learn the technique). To use streams, you can return an object of type StreamingOutput from your resource class’ method like this (other methods are allowed as well):</p>
+<pre><code>    @GET
+    public StreamingOutput getIt() {
+        StreamingOutput op = new StreamingOutput() {
+            public void write(OutputStream out) throws IOException, WebApplicationException {
+                //write to the stream
+            }
+        };
+        return op;
+    }</code></pre>
+<p>You can use XML or JSON libraries for writing to the stream. Do not just write Strings.</p>
+<p>Test whether your interfaces work by using 'manual 'testing', i.e. write a main class which connects to the services you have created.</p>
+<p>Then make a web interface for your application. You can use an extra server for hosting the web app or use a static html page and javascript to connect to the services. This web interface should show a map (free choice, could be for instance <a href="https://developers.google.com/maps/">Google maps</a> or you can get inspiration from <a href="http://www.creativebloq.com/inspiration/top-seven-alternatives-google-maps-api-7122779">here</a>). When the user clicks on the map, you should perform a request to the localGDP service and display the result.</p>
+<p>If using Vaadin, you can use plug-ins available like the <a href="https://vaadin.com/directory#addon/googlemaps-add-on:vaadin">GoogleMaps Add-on</a>.</p>
+<ul>
+<li>Ask your own questions and answer questions on <a href="http://desmaani.it.jyu.fi:8254/ties532/index.php?qa=week40">http://desmaani.it.jyu.fi:8254/ties532/index.php?qa=week40</a></li>
+</ul>
+<h3 id="optional">Optional</h3>
+<p>An optional challenge is the implementation of basic rate limiting while making calls to the geocoding API. As per the <a href="https://developers.google.com/maps/documentation/geocoding/#Limits">Limits</a> section of the API documentation there are limits on the amount of requests you can perform on the API. <!--You can try to make a loop in which you call the service continuously, until you get an error message.--> It seems like an easy solution would be to wait some time (say, a second or so) and then try to call the service again. The problem is, however, that also other calls which happen in other threads will hit the limit at the same time. This would result in all threads waiting a certain amount of time, and then all try again which might hit the limit again. People familiar with networking would think in the direction of exponential back-of approaches. However, since all the work is done inside the same VM, there is a more efficient way of solving this problem. You can for instance create a singleThreadExecutor (a thread pool with only one thread) which has the responsibility to execute all calls to the geocoding API. You then submit() Callables to the pool and get the result from the returned Future. Now, when you hit the rate limit, you can wait a fixed amount of time and try again. You can be sure that no other threads are doing the same thing at the same time.</p>
+<h3 id="returning-the-task">Returning the task</h3>
+<p>Put the parts you created yourself to your git repository. Add a readme.txt file describing your project structure and the choices you made for the REST api (see hint 5 below).</p>
+<h3 id="questions">Questions</h3>
+<p>Ask your own questions <a href="http://desmaani.it.jyu.fi:8254/ties532/index.php?qa=week37">http://desmaani.it.jyu.fi:8254/ties532/index.php?qa=week37</a>.</p>
+<h2 id="hints">Hints</h2>
+<ol style="list-style-type: decimal">
+<li><p>Most hints from the previous exercises are still valid.</p></li>
+<li><p>To consume the google geocoding API service, you should use the Jersey libraries (download from <a href="https://jersey.java.net/download.html">https://jersey.java.net/download.html</a> or look at <a href="https://jersey.java.net/documentation/latest/modules-and-dependencies.html">https://jersey.java.net/documentation/latest/modules-and-dependencies.html</a>)</p></li>
+<li><p>If you want to do JSON object marshalling, you can generate code stubs using <a href="http://jsongen.byingtondesign.com/">http://jsongen.byingtondesign.com/</a>. The generation is not perfect and most likely needs a few manual changes.</p></li>
+<li><p>The wsimport tool introduced in an earlier exercise can be used to convert the WSDL file from the GDP service into classes.</p></li>
+<li><p>The parts which should be included in the answer from the service is something which you should decide in your group. Also the way the information is structured is your choice. You can get inspiration from the mediafire API and the google geocoding API. Also look at the information from <a href="https://www.ibm.com/developerworks/webservices/library/ws-restful/">https://www.ibm.com/developerworks/webservices/library/ws-restful/</a>. Document the choices in the readme file.</p></li>
+<li><p>Use HTTP features correctly. Return correct response codes and set the MIME type correctly. (You can use @Produces, but this forces the client to set the encoding correctly as well!)</p></li>
+<li><p>For information about transforming exceptions in responses, see <a href="https://jersey.java.net/documentation/latest/representations.html#d0e3586">https://jersey.java.net/documentation/latest/representations.html#d0e3586</a></p></li>
+</ol>
+<!--
+
+Reflective questions 
+---------------------
+Did you use JSON or XML for the geocoding, why? Is your way of parsing efficient? Is there any point in making it more efficient?
+
+How did you design your application?
+
+For groups who implemented a Vaadin app: How could the website be implemented if you would not use Vaadin?
+
+How can you lower the memory consumption and CPU use of the LocalGDP service? Any ideas on how to test this?
+
+How do you handle errors? How does a user of your localGDP service know that something went wrong. Which erroneous situations do you handle? Which ones remain unhandled?
+
+What does the HTTP request which is send to your localGDP service look like, when the client want to know the GDP for latitude 62.23186 and longitude 25.73656 using XML as a response format? What does the HTTP response look like?
+
+If you implemented some mechanism to prevent hitting the rate limit, how did you do it?
+
+What should be improved in this exercise if it is given to students in the future?
+
+-->
+
+
+
+<script type="text/javascript">var vglnk = {api_url: '//api.viglink.com/api', key: '0dff9ade2d1125af6c910069b6d6e155'};</script><script type="text/javascript" async="" src="./week39_files/vglnk.js"></script></body></html>

@@ -1,0 +1,9 @@
+ToDO
+
+1. Modify the software from 4B, sothat it would save timestamp of the messages
+
+2. Collect 5000 tweets (message, location, timestamp), using the software developed in assignment 4B
+
+3. Develop the queries which would find from your dataset numbers of messages pereach hour, and number of messages per each minute. (present it as plot)
+
+4. Develop the queries, which would find the keyword in the text of the coleected messages (not case sensitive)

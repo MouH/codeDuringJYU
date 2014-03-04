@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0069)http://users.jyu.fi/~miselico/teaching/TIES456/2013/exercises/week42/ -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  <title></title>
+  <link rel="stylesheet" href="./week42_files/kalvot.css" type="text/css">
+</head>
+<body>
+<h1 id="cloud-services">Cloud Services</h1>
+<h2 id="goal">Goal</h2>
+<p>In this exercises we will look at the different products offered by a cloud service provider In particular different groups will try out different products and present their findings in the final lectures.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>Find out what <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html">availability zones are in aws</a> . Try to log in to aws. First you need to get your personal password from <a href="http://ties456aws.appspot.com/">http://ties456aws.appspot.com</a>.</p>
+<h2 id="task">Task</h2>
+<p>Your task is depending on what topic your group picks. While you are doing the task you have to keep the following things in mind:</p>
+<ul>
+<li>How does it work?</li>
+<li>What do you have to pay? How is the pricing? Are there hidden costs?</li>
+<li>How expensive is this particular thing?</li>
+</ul>
+<p>Then you make a cost estimate and add it to the README.txt file in the repository for this week. Also add all code artifacts to the repository.</p>
+<p>During the last review session, each group is supposed to give a short presentation about the what the service is, how much it costs and what you did with it.</p>
+<p>Depending on the task you will work in a given availability zone.</p>
+<ul>
+<li><a href="https://console.aws.amazon.com/opsworks/home?#firstrun">AWS OpsWorks</a> DevOpsApplication Management Service
+<ul>
+<li>Make a set-up similar to the one described in the <a href="https://www.youtube.com/watch?v=9NnWJsS4Y2c">getting started video</a></li>
+<li>Host a simple PHP webpage which displays a form in which the user can enter a date. After submitting the form the user sees the number of days since that date.</li>
+<li>Availability Zone : US East (N. Virginia)</li>
+<li>group 1</li>
+</ul></li>
+<li><a href="https://console.aws.amazon.com/cloudfront/home">Amazon CloudFront</a> Global content delivery framework
+<ul>
+<li>Get a video stream from Amazon CloudFront working from S3</li>
+<li>Availability Zone : US West (Oregon)</li>
+<li>group 4</li>
+</ul></li>
+<li><a href="https://console.aws.amazon.com/elasticmapreduce/home">Elastic MapReduce</a> Managed Hadoop framework
+<ul>
+<li>Implement a map reduce job on top of this infrastructure</li>
+<li>You can base your application on <a href="http://aws.amazon.com/articles/2273">this article with a word count example</a> but you should use another problem and a custom reducer.</li>
+<li>Use a dataset with a size big enough to have a realistic running time for instance from <a href="http://aws.amazon.com/datasets">freely available data sets</a></li>
+<li>Availability Zone : US West (N. California)</li>
+<li>group 8</li>
+</ul></li>
+<li><a href="https://console.aws.amazon.com/elastictranscoder/home">Elastic Transcoder</a> Media transcoding in the cloud
+<ul>
+<li>Transcode video using pipelines, jobs and presets</li>
+<li>Availability Zone : EU (Ireland)</li>
+<li>group 6</li>
+</ul></li>
+<li><a href="https://console.aws.amazon.com/sqs/home">SQS</a> Message queue service
+<ul>
+<li>Create two applications (a publisher and a consumer)</li>
+<li>Communicate between the two using the queuing system</li>
+<li>Availability Zone : Asia Pacific (Singapore)</li>
+<li>group 3</li>
+</ul></li>
+<li><a href="https://console.aws.amazon.com/swf/home">Amazon SWF</a> Amazon Simple Workflow Service
+<ul>
+<li>Implement a workflow with 5 workers and 4 deciders. (amounts are flexible)</li>
+<li>Availability Zone : Asia Pacific (Tokyo)</li>
+<li>group 2</li>
+</ul></li>
+<li><a href="https://console.aws.amazon.com/cloudsearch/home">Amazon CloudSearch</a>
+<ul>
+<li>Configure a search domain</li>
+<li>Add data from one of the <a href="http://aws.amazon.com/datasets">freely available data sets</a> (Keep the size within limits)</li>
+<li>Provide a small web-interface to perform searches</li>
+<li>Availability Zone : Asia Pacific (Sydney)</li>
+<li>group 7</li>
+</ul></li>
+<li><a href="https://console.aws.amazon.com/elasticache/home">Elasticache</a> In memory cache in the cloud
+<ul>
+<li>Try both Memcached and Redis caching</li>
+<li>Write an application which is using this cache and an S3 or other database solution as a back-end.</li>
+<li>Availability Zone : South America (São Paulo)</li>
+<li>group 5</li>
+</ul></li>
+</ul>
+<h3 id="returning-the-task">Returning the task</h3>
+<ul>
+<li>Code in the repo</li>
+<li>Presentation in class</li>
+</ul>
+<h3 id="questions">Questions</h3>
+<p>Ask your own questions <a href="http://ties456.it.jyu.fi/q2a/index.php?qa=questions&qa_1=week42">http://ties456.it.jyu.fi/q2a/index.php?qa=questions&amp;qa_1=week42</a>.</p>
+<h2 id="hints">Hints</h2>
+<ul>
+<li>Be creative</li>
+</ul>
+
+
+<script type="text/javascript">var vglnk = {api_url: '//api.viglink.com/api', key: '0dff9ade2d1125af6c910069b6d6e155'};</script><script type="text/javascript" async="" src="./week42_files/vglnk.js"></script></body></html>

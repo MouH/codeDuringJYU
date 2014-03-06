@@ -11,3 +11,6 @@ To-do
 ## Nonlinear Optimization course
 To-do:
 - list the constrain method
+- finish argument lagrized method
+- Sequential Quadratic Programming
+

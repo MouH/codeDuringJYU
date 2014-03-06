@@ -5,12 +5,20 @@ This repo include the code I write to finish the course I take in University of 
 
 
 ## Soft Computing
+matlab
+
 To-do
 - write the multi-objective evolution method
 
 ## Nonlinear Optimization course
+matlab & python
+
 To-do:
 - list the constrain method
-- finish argument lagrized method
+- newton method and qussi-newton's method
+- active set method
 - Sequential Quadratic Programming
+..- to express a gradient
+..- a hessien
+..- solve quadratic programming problem
 

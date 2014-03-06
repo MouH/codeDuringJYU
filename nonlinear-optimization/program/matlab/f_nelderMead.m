@@ -12,6 +12,24 @@
 
 function [x, fval, flag] = f_nelderMead(fun, x0, max_iteration, eps)
 
+%% ==================================
+  % f_nelderMead() function takes 
+  
+  % 4 inputs:
+  %   - fun, an objective function
+  %   - x0, a start point
+  %   - max_iteration, maximum iteration time, defalut to be 10000
+  %   - eps, tolerance for terminate, defalut to be 1e-5
+  % in which, the frist two parameters are required.
+  
+  % return:
+  %   - x, minimizer value
+  %   - fval, objective of minimizer
+  %   - flag, tag for wether a minimier is found with this algorithm, where 1 means true, 0 means false
+
+  % >>[minimizer, fval, flag] = f_nelderMead(@f_objectFunction, x0);
+%% ==================================
+
 % parameter check
 if nargin < 2
 	error('please pass at least 2 parameters');
@@ -22,7 +40,7 @@ if nargin < 3
 	max_iteration = 10000;
 end
 if nargin < 4
-	eps = 1e-5;
+	eps = 1e-5; % tolerance
 end
 
 % initialize
@@ -125,9 +143,9 @@ x = mat(1, 2:end);
 fval = mat(1,1);
 
 if max_iteration > 0
-	flag = 1;
+	flag = 1; % find a minimier
 else
-	flag = 0;
+	flag = 0; % not find a minimier
 end
 
 end

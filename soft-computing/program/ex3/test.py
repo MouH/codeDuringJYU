@@ -1,3 +1,9 @@
-import node
+class A:
+    def __init__(self,x):
+        self.x = x
 
-print node.add(2)
+    def haha(self):
+        print "haha"
+
+a = A(1)
+a.haha()

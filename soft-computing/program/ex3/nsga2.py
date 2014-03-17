@@ -137,7 +137,8 @@ class NSGA2:
         #         returnSet = returnSet + nodesSortByDominate[i]
         #         return returnSet
             
-        while True:
+        while i < len(nodesSortByDominate):
+
             if ( len(returnSet) + len(nodesSortByDominate[i]) ) > size:
                 nodesSortByCrowding = self.__crowdingDistanceCompute(nodesSortByDominate[i])
                 returnSet = returnSet + nodesSortByCrowding[0:(size-len(returnSet))]

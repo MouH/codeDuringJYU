@@ -10,12 +10,17 @@ Multi-Objective Optimization - NSGA2
 # 
 # ======================================
 Author: Mou Hao
+
+this file is the help file for NSGA-2 and MOEA/D algorithms
+for proper useage, one should modify the import and the create node 
+function in linearCrossOver function
 '''
 
-__author__     = "Mou Hao"
+__author__ = "Mou Hao"
 
 import random
-import nsga2
+# import nsga2
+import moeaD
 
 def realCodeMutation(node):
     '''
@@ -49,11 +54,9 @@ def linearCrossOver(node1, node2):
         a = random.uniform(-0.25, 1.25)
         newAttribute = newAttribute + [ attribute1[i] * a + ( 1 - a ) * attribute2[i] ]
 
-    node = nsga2.Node(newAttribute)
+    # node = nsga2.Node(newAttribute)
+    node = moeaD.Node(newAttribute)
     return node
-
-
-
 
 def generateOffspring(nodes):
     '''

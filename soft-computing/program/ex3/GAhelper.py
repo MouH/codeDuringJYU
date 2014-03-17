@@ -74,14 +74,14 @@ def generateOffspring(nodes):
          # with assumption that nodes is biger much bigger than 6
         tournament1 = random.sample(nodes, 2)
         tournament1.sort()
-        parent1 = tournament1[0]
+        parent1 = tournament1[1]
 
         tournament1 = random.sample(nodes, 2)
         tournament1.sort()
-        parent2 = tournament1[0]
+        parent2 = tournament1[1]
         
         # with probability 0.8 to crossover
-        if random.random() < 0.8:
+        if random.random() < 1:
             offspringTemp.append(linearCrossOver(parent1, parent2)) # store the offspring of parents 1 and 2
         else:
             if parent1 < parent2:

@@ -33,6 +33,9 @@ class Node:
     def getAttribute(self):
         return self.__attribute
 
+    def setAttribute(self, newAttribute):
+        self.__attribute = newAttribute
+
     def getDominationCounter(self):
         return self.__dominationCounter
 
@@ -71,10 +74,6 @@ class Node:
 
     def __lt__(self, node):
         return self.__rank > node.getRank()
-        # if self.__rank > node.getRank():
-        #     return True
-        # else:
-        #     return 
 
 class NSGA2:
     '''
@@ -87,7 +86,7 @@ class NSGA2:
         '''
         self.__population = initialPopulation
 
-    def getPopulation():
+    def getPopulation(self):
         return self.__population
 
     def nsga2(self, iteration):
@@ -100,12 +99,15 @@ class NSGA2:
         maxIteration = iteration
         
         while maxIteration > 0:
+            # print maxIteration
             # combine parents and offspring population
             tempPopulation = [ i for i in 
                             set(generateOffspring(self.__population) + self.__population)]
             
-            # sort and get the first n
-            self.__population = __sort(tempPopulation)
+            # sort and get the first n, for the next generation
+            self.__population = self.__getNextPopulation(tempPopulation)
+
+            maxIteration -= 1
 
 
 
@@ -123,10 +125,18 @@ class NSGA2:
 
         # implement the non dominate sort
         nodesSortByDominate = self.__nonDominatedSort(nodes)
-        
+        # print len(nodesSortByDominate)
         # find the rank should be sort by crowdingDistance
         i = 0
-
+        # for i in range( len(nodesSortByDominate) ):
+        #     if ( len(returnSet) + len(nodesSortByDominate[i]) ) > size:
+        #         nodesSortByCrowding = self.__crowdingDistanceCompute(nodesSortByDominate[i])
+        #         returnSet = returnSet + nodesSortByCrowding[0:(size-len(returnSet))]
+        #         return returnSet
+        #     elif ( len(returnSet) + len(nodesSortByDominate[i]) ) == size:
+        #         returnSet = returnSet + nodesSortByDominate[i]
+        #         return returnSet
+            
         while True:
             if ( len(returnSet) + len(nodesSortByDominate[i]) ) > size:
                 nodesSortByCrowding = self.__crowdingDistanceCompute(nodesSortByDominate[i])

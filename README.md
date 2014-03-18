@@ -27,8 +27,8 @@ JAVA
 - NoSQL database - Riak
 
 ## Soft Computing
-matlab - annealing and binary code GA
-python - real value multi-objective NSGA2 and MOEA/D
+- matlab - annealing and binary code GA
+- python - real value multi-objective NSGA2 and MOEA/D
 
 course of evolutionary algorithm to achieve global optimization
 

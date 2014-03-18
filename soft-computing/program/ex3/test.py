@@ -46,16 +46,19 @@ def main():
     # TEST for MOEA/D
     # ======================================================
     initialNodes = []
-    for j in range(20): # 20 nodes
+    for j in range(50): # 20 nodes
         attribute = []
         for m in range(30): # 30 variable
-            attribute.append(random.random())
+            if m == 0:
+                attribute.append(random.random())
+            else:
+                attribute.append(random.uniform(-2,2))
         node = Node(attribute)
         initialNodes.append(node)
 
     test = MoeaD(initialNodes)
 
-    front = test.moeaD(100)
+    front = test.moeaD(200)
     print len(front)
     f1 = [ node.getX()[0] for node in front ]
     f2 = [ node.getX()[1] for node in front ]

@@ -85,13 +85,13 @@ class MoeaD:
         
         front = []
 
-        for i in range(0, 21):
+        for i in range(0, 51):
 
             initialPopulation = [ node for node in self.__population ]
             for j in range(iteration):
 
                 # set weighted objective value for each node
-                a = i * 1.0 / 20
+                a = i * 1.0 / 50
                 for node in initialPopulation:
                     # this calculation is only suitable for two objective function
                     X = node.getX()

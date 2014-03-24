@@ -1,24 +1,21 @@
-function value = f_objectFunction2(x)    
+function value = f_objectFunction1(x)    
 % ObjectFunction should be changed with different optimization problem
 
-% x is two dimensional data
+% x is a one dimension variable
 
 fileID = fopen('input.txt', 'w');
-fprintf(fileID, '%f', x(1));
-fprintf(fileID, '\n');
-fprintf(fileID, '%f', x(2));
-
+fprintf(fileID, '%f', x);
 fclose(fileID);
 
-%system('wine prob2.exe');
-system('prob2.exe');
-
+system('wine prob1.exe');
 
 % read the output file
 fileID = fopen('output.txt', 'r');
 formatSpec = "%f";
 A = fscanf(fileID, formatSpec);
 
+% requires no gradient info
 value = A(1,:);
 
-end 
+
+end

@@ -15,7 +15,7 @@ clear; close all; clc
 
 %% =================Line Search=================
 fprintf('Test of line search method \n');
-fprintf('\nThis part of two method is implemented by \n\nMou Hao \n\n\n');
+fprintf('\nThis part of two method is implemented by \n\nMou Hao \n');
 fprintf('Press enter to continue\n');
 pause;
 clc

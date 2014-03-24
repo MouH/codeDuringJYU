@@ -10,9 +10,7 @@ fprintf(fileID, '%f', x(2));
 
 fclose(fileID);
 
-%system('wine prob2.exe');
-system('prob2.exe');
-
+system('wine prob2.exe');
 
 % read the output file
 fileID = fopen('output.txt', 'r');

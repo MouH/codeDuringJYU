@@ -17,13 +17,18 @@ class lshTrie:
 		self.element = []
 
 	def insert(self, array, label):
+		'''
+		Insert the a hash value vertor in. And return the element in the leaf
+		'''
 		if len(array) == 0:
+			temp = self.element[:]
 			self.element.append(label)
+			return temp
 		else:
 			key = array[0]
 			if key not in self.edges:
 				self.edges[key] = lshTrie()
-			self.edges[key].insert(array[1:], label)
+			return self.edges[key].insert(array[1:], label)
 
 	def getBucket(self):
 		'''
@@ -45,7 +50,7 @@ class lshTrie:
 					continue
 				else:
 					returnList += temp
-		# print returnList
+		#print returnList
 		return returnList
 
 
@@ -60,10 +65,15 @@ def testTrie():
 
 	trie.insert(data1, 0)
 	trie.insert(data2, 1)
-	trie.insert(data3, 2)
+	assert trie.insert(data3, 2) == [1]
 	#print trie.edges[1].edges.keys()
 	a = trie.getBucket()
 	assert a == [1,2]
+
+	# trie1 = lshTrie()
+	# for i in range(10):
+	# 	trie1.insert(np.random.randn(10),i)
+	# print trie1.getBucket()
 
 	print 'test success'
 

@@ -45,11 +45,13 @@ class lshTrie:
 		else:
 			# not at leaf
 			for i in self.edges.iterkeys():
-				temp = self.edges[i].getBucket()
-				if len(temp) == 0:
-					continue
+				if len(self.edges[i].edges) == 0:
+					a = self.edges[i].getBucket()
+					if a != []:
+						returnList.append(a)
 				else:
-					returnList += temp
+					returnList += self.edges[i].getBucket()
+
 		#print returnList
 		return returnList
 
@@ -58,17 +60,22 @@ class lshTrie:
 def testTrie():
 	# intiial empty trie
 	trie = lshTrie()
+	a = trie.getBucket()
+
 	import numpy as np
 	data1 = np.array([1,0,1,0,1,0])
 	data2 = np.array([1,1,0,0,0,0])
 	data3 = np.array([1,1,0,0,0,0])
+	data4 = np.array([1,0,1,0,1,0])
+	data5 = np.array([1,0,1,0,1,0])
 
-	trie.insert(data1, 0)
-	trie.insert(data2, 1)
-	assert trie.insert(data3, 2) == [1]
-	#print trie.edges[1].edges.keys()
+	print trie.insert(data1, 0)
+	print trie.insert(data2, 1)
+	print trie.insert(data3, 2)
+	print trie.insert(data4, 3)
+	print trie.insert(data5, 4)
 	a = trie.getBucket()
-	assert a == [1,2]
+	print a
 
 	# trie1 = lshTrie()
 	# for i in range(10):

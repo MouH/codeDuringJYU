@@ -14,6 +14,7 @@ from numpy import random
 from scipy.spatial.distance import pdist, squareform
 from lshTrie import lshTrie
 from itertools import combinations
+from distanceMeasure import cosineSimilarity
 
 class lsh:
 	def __init__(self, numOfAttribute, bands, rows, distanceMeasure):
@@ -55,15 +56,42 @@ class lsh:
 			raise RuntimeError('The data have wrong number of attribute.')
 		candidate = []
 		currentDataSize = len(self.data)
-		for i, trie in enumerate(self.tries):
-			a = trie.insert( itemHashValue[i*self.bands : (i+1)*self.bands], index+indexNow )
-			candidate += a
+		itemHashValue = self.__hash(item)
+		self.data.append(item)
 
-		temp = pdist(np.array(candidate))
-		k = temp.argmin()
-		# print 'k',k
-		com = list(combinations(range(currentDataSize),2))
-		return candidate[com[k][0]], candidate[com[k][1]], temp[k]
+
+		for i, trie in enumerate(self.tries):
+			a = trie.insert( itemHashValue[i*self.rows : (i+1)*self.rows], currentDataSize )
+			candidate += a
+		print 'candidate size: ', len(candidate)
+
+		if len(candidate) == 0:
+			return -1,0
+		print candidate
+		distance = cosineSimilarity(np.array(self.data)[candidate], item)
+		index = np.argmin(distance)
+
+		return candidate[index], distance[index]
+
+	def findApproximateSimilar(self):
+		a = None
+		buckets = []
+		for trie in self.tries:
+			bucket = trie.getBucket()
+			if len(bucket)==0:
+				continue
+			else:
+				buckets += bucket
+		if buckets == []:
+			return 0,0,0
+		print buckets
+		for bucket in buckets:
+			a = np.array([ self.data[bucket[1]], self.data[bucket[0]] ])
+			a = bucket[1], bucket[0], pdist(a, self.distanceMeasure)[0]
+		if a!=None:
+			return a
+		else:
+			return 0,0,0
 
 	def findMostSimilar(self):
 		'''
@@ -77,19 +105,19 @@ class lsh:
 		possibleList = []
 		for trie in self.tries:
 			bucket = trie.getBucket()
-			print 'butket', bucket
+			print 'butket length', len(bucket)
 			if len(bucket)==0:
 				continue
 			else:
 				possibleList.append(bucket)
-		print len(possibleList)
+		
 		candidate = []
 		# print possibleList
 		if len(possibleList) == 0:
 			return 0,0,0
 		for i in possibleList:
 			#print i
-			temp = pdist( np.array([ self.data[item] for item in i ]) )
+			temp = pdist( np.array([ self.data[item] for item in i ]), self.distanceMeasure )
 			k = temp.argmin()
 			# print 'k',k
 			com = list(combinations(range(len(i)),2))
@@ -143,42 +171,60 @@ class lsh:
 
 
 def test():
-	seed = 0
+	seed = 1
 	random.seed(seed)	
-	numOfData = 1000
+	numOfData = 10000
 	numOfAttribute = 1000
 	data = random.randn(numOfData, numOfAttribute)
 	bands = 10
-	rows = 20
+	rows = 15
 	distanceMeasure = 'cosine'
 
-	testseed=12341234123
+	testseed=12341
 
 	testlsh = lsh(numOfAttribute, bands, rows, distanceMeasure)
 
 	import time
-	t=time.time()
+	t1=time.time()
 	testlsh.createHash(testseed)
-	testlsh.insertDataset(data)
-	print '\ninsert data used: ', time.time()-t
+	testlsh.insertDataset(data[0:-1])
+	t2=time.time()
+	
+	# dis = pdist(data[0:-1], distanceMeasure)
+	# k = np.argmin(dis)
+	# m = np.argmax(dis)
 
-	t=time.time()
-	# print data
-	dis = pdist(data)
+	# t3=time.time()
+	# i,j,distance = testlsh.findMostSimilar()
+	# i,j,distance = testlsh.findApproximateSimilar()
+	# t4=time.time()
+
+
+	# com = list(combinations(range(len(data)-1),2))
+	# print '\ninsert data used: ', t2-t1
+	# print 'naive compute all time used: ', t3-t2
+	# print 'lsh used: ', t4-t3
+	# print '\nthe most similar is: ', i, j, distance
+	# print 'true minimal: ', com[k][0], com[k][1], dis[k]
+	# print 'true maximal: ', com[m][0], com[m][1], dis[m]
+
+	
+	print '\n-----------------------------------------------------------------'
+	print 'testing insert similar\n'
+	t5 = time.time()
+	i, distance = testlsh.insertAndFind(data[-1])
+	t6 = time.time()
+
+	dis = cosineSimilarity(data[0:-1,:], data[-1,:])
 	k = np.argmin(dis)
 	m = np.argmax(dis)
-	print 'naive compute all time used: ', time.time()-t
-	
-	t=time.time()
-	i,j,distance = testlsh.findMostSimilar()
-	print 'lsh used: ', time.time()-t
+	t7 = time.time()
 
-	com = list(combinations(range(len(data)),2))
-	print '\nthe most similar is: ', i, j, distance
-	print 'true minimal: ', com[k][0], com[k][1], dis[k]
-	print 'true maximal: ', com[m][0], com[m][1], dis[m]
-
-	
+	print '\ninsert data and find approximate used: ', t6-t5
+	print 'naive compute all time used: ', (t7-t6)
+	print '\nthe most similar is: ', i, distance
+	print 'true minimal: ', k, dis[k]
+	print 'true maximal: ', m, dis[m]
 
 if __name__ == '__main__':
 	test()

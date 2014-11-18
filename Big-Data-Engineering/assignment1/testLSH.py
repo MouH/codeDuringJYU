@@ -11,6 +11,8 @@ import sys
 from scipy.spatial.distance import pdist, squareform
 import numpy as np
 from itertools import combinations
+from distanceMeasure import cosineSimilarity
+
 
 dataFile = sys.argv[1]
 
@@ -18,14 +20,18 @@ fo = open(dataFile, 'rb')
 dict = cPickle.load(fo)
 fo.close()
 
-data = dict['data'][0:1000]
+rawdata = dict['data']
+
+data = rawdata[0:1000,:]
+testdata = rawdata[1001:1100, :]
+
 numOfAttribute = data.shape[1]
 
 bands = 10
 rows = 20
 distanceMeasure = 'cosine'
 
-testseed=12341234123
+testseed=12341
 
 testlsh = lsh(numOfAttribute, bands, rows, distanceMeasure)
 
@@ -37,16 +43,16 @@ print '\ninsert data used: ', time.time()-t
 
 t=time.time()
 # print data
-dis = pdist(data)
+dis = cosineSimilarity(data, testdata[0,:])
 k = np.argmin(dis)
 m = np.argmax(dis)
 print 'naive compute all time used: ', time.time()-t
 
 t=time.time()
-i,j,distance = testlsh.findMostSimilar()
+# i,j,distance = testlsh.findMostSimilar()
+i,distance = testlsh.insertAndFind()
 print 'lsh used: ', time.time()-t
 
-com = list(combinations(range(len(data)),2))
-print '\nthe most similar is: ', i, j, distance
-print 'true minimal: ', com[k][0], com[k][1], dis[k]
-print 'true maximal: ', com[m][0], com[m][1], dis[m]
+print '\nthe most similar is: ', i, distance
+print 'true minimal: ', k, dis[k]
+print 'true maximal: ', m, dis[m]
